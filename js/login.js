@@ -19,7 +19,7 @@ document.getElementById('formLogin').addEventListener('submit', async (event) =>
         const data = await response.json();
         if (data.success) {
             alert('Login realizado com sucesso!');
-            window.location.href = 'home.html';
+            window.location.href = 'tabela.html';
             //Se o login falhar, aparece um alerta informando que as credenciais estão incorretas
         } else {
             alert('Credenciais incorretas.');

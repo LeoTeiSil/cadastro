@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="css/tabela.css">
+</head>
+<body>
+    <h1>Cadastro de Usuários</h1>
+
+    <div>
+        <button id="btnCreate">Criar Novo</button>
+        <input type="text" id="searchInput" placeholder="Pesquisar...">
+    </div>
+
+    <table id="cadastroTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Senha</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados da tabela aparecerão aqui -->
+        </tbody>
+    </table>
+
+    <div id="formContainer" style="display:none;">
+        <h2>Formulário de Cadastro</h2>
+        <form id="formCadastro">
+            <input type="hidden" id="userId">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" required>
+            <button type="submit" id="btnSubmit">Salvar</button>
+            <button type="button" id="btnCancel">Cancelar</button>
+        </form>
+    </div>
+
+    <script src="js/tabela.js"></script>
+</body>
+</html>
