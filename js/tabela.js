@@ -67,36 +67,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Evento de submit do formulário
     formCadastro.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const id = document.getElementById("userId").value || Date.now();
-        const nome = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-        const senha = document.getElementById("senha").value;
+    e.preventDefault();
+    const nome = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
 
-        const user = { id, nome, email, senha };
-        
-        if (editingUserId) {
-            // Atualizar usuário
-            fetch(`http://localhost:3000/cadastros/${editingUserId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user)
-            })
-            .then(() => fetchUsers())
-            .catch(error => console.error('Erro ao atualizar cadastro:', error));
-        } else {
-            // Criar novo usuário
-            fetch('http://localhost:3000/cadastros', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user)
-            })
-            .then(() => fetchUsers())
-            .catch(error => console.error('Erro ao criar cadastro:', error));
-        }
+    const user = { nome, email, senha };
 
-        clearForm();
-    });
+    if (editingUserId) {
+        // Atualizar usuário
+        fetch(`http://localhost:3000/cadastros/${editingUserId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(user)
+        })
+        .then(() => fetchUsers())
+        .catch(error => console.error('Erro ao atualizar cadastro:', error));
+    } else {
+        // Criar novo usuário
+        fetch('http://localhost:3000/cadastro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(user)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                fetchUsers(); // Atualiza a tabela com o novo usuário
+            } else {
+                console.error('Erro ao criar cadastro:', data.message);
+            }
+        })
+        .catch(error => console.error('Erro ao criar cadastro:', error));
+    }
+
+    clearForm();
+});
+
 
     // Evento de click nos botões de editar e deletar
     tableBody.addEventListener("click", function (e) {
