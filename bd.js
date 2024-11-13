@@ -6,14 +6,12 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
-// Configuração de conexão com o banco de dados
 const connectionString = "Driver={SQL Server};Server=DESKTOP-M7KU2HR;Database=perfis;Trusted_Connection=Yes;";
 
-app.use(cors({ origin: 'http://localhost:5500' })); // Ajuste o URL para o seu frontend
+app.use(cors({ origin: 'http://localhost:5500' }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// Função para conectar ao banco de dados
 async function connectDB() {
     try {
         return await odbc.connect(connectionString);
@@ -22,10 +20,8 @@ async function connectDB() {
     }
 }
 
-// Rota para cadastro de novos usuários (Create)
 app.post('/cadastro', async (req, res) => {
     const { nome, email, senha } = req.body;
-
     try {
         const connection = await connectDB();
         await connection.query('INSERT INTO cadastros (nome, email, senha) VALUES (?, ?, ?)', [nome, email, senha]);
@@ -36,14 +32,11 @@ app.post('/cadastro', async (req, res) => {
     }
 });
 
-// Rota para login (Verificação das informações)
 app.post('/login', async (req, res) => {
     const { email, senha } = req.body;
-
     try {
         const connection = await connectDB();
         const result = await connection.query('SELECT * FROM cadastros WHERE email=? AND senha=?', [email, senha]);
-
         if (result.length > 0) {
             res.json({ success: true, message: 'Login realizado com sucesso!' });
         } else {
@@ -55,7 +48,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Rota para obter todos os registros (Read)
 app.get('/cadastros', async (req, res) => {
     try {
         const connection = await connectDB();
@@ -67,7 +59,6 @@ app.get('/cadastros', async (req, res) => {
     }
 });
 
-// Rota para atualizar um cadastro (Update)
 app.put('/cadastros/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, email, senha } = req.body;
@@ -81,7 +72,6 @@ app.put('/cadastros/:id', async (req, res) => {
     }
 });
 
-// Rota para excluir um cadastro (Delete)
 app.delete('/cadastros/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -94,7 +84,6 @@ app.delete('/cadastros/:id', async (req, res) => {
     }
 });
 
-// Inicialização do servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

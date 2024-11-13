@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnCancel = document.getElementById("btnCancel");
     let editingUserId = null;
 
-    // Função para adicionar um novo usuário na tabela
     function addRow(user) {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -24,7 +23,6 @@ document.addEventListener("DOMContentLoaded", function () {
         tableBody.appendChild(row);
     }
 
-    // Função para buscar e filtrar usuários
     function fetchUsers() {
         fetch('http://localhost:3000/cadastros')
             .then(response => response.json())
@@ -35,7 +33,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error('Erro ao buscar cadastros:', error));
     }
 
-    // Função para exibir o formulário de criação ou edição
     function showForm(user = {}) {
         formContainer.style.display = "block";
         document.getElementById("userId").value = user.id || "";
@@ -45,7 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
         editingUserId = user.id || null;
     }
 
-    // Função para limpar o formulário
     function clearForm() {
         document.getElementById("userId").value = "";
         document.getElementById("name").value = "";
@@ -55,57 +51,50 @@ document.addEventListener("DOMContentLoaded", function () {
         formContainer.style.display = "none";
     }
 
-    // Evento de click para criar um novo cadastro
     btnCreate.addEventListener("click", () => {
         showForm();
     });
 
-    // Evento de click para cancelar o formulário
     btnCancel.addEventListener("click", () => {
         clearForm();
     });
 
-    // Evento de submit do formulário
     formCadastro.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const nome = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("senha").value;
+        e.preventDefault();
+        const nome = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const senha = document.getElementById("senha").value;
 
-    const user = { nome, email, senha };
+        const user = { nome, email, senha };
 
-    if (editingUserId) {
-        // Atualizar usuário
-        fetch(`http://localhost:3000/cadastros/${editingUserId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user)
-        })
-        .then(() => fetchUsers())
-        .catch(error => console.error('Erro ao atualizar cadastro:', error));
-    } else {
-        // Criar novo usuário
-        fetch('http://localhost:3000/cadastro', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                fetchUsers(); // Atualiza a tabela com o novo usuário
-            } else {
-                console.error('Erro ao criar cadastro:', data.message);
-            }
-        })
-        .catch(error => console.error('Erro ao criar cadastro:', error));
-    }
+        if (editingUserId) {
+            fetch(`http://localhost:3000/cadastros/${editingUserId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            })
+            .then(() => fetchUsers())
+            .catch(error => console.error('Erro ao atualizar cadastro:', error));
+        } else {
+            fetch('http://localhost:3000/cadastro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetchUsers();
+                } else {
+                    console.error('Erro ao criar cadastro:', data.message);
+                }
+            })
+            .catch(error => console.error('Erro ao criar cadastro:', error));
+        }
 
-    clearForm();
-});
+        clearForm();
+    });
 
-
-    // Evento de click nos botões de editar e deletar
     tableBody.addEventListener("click", function (e) {
         const target = e.target;
         const userId = target.dataset.id;
@@ -127,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Evento de digitação no campo de pesquisa
     searchInput.addEventListener("input", function () {
         const filter = searchInput.value.toLowerCase();
         const rows = tableBody.querySelectorAll("tr");
@@ -137,6 +125,5 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Inicializar tabela com dados do banco
     fetchUsers();
 });
