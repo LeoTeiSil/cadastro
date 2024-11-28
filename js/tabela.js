@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnCreate = document.getElementById("btnCreate");
     const btnSubmit = document.getElementById("btnSubmit");
     const btnCancel = document.getElementById("btnCancel");
+    const modal = document.getElementById("userModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const closeModal = document.querySelector(".close");
     let editingUserId = null;
 
     function addRow(user) {
@@ -14,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${user.id}</td>
             <td>${user.nome}</td>
             <td>${user.email}</td>
-            <td>${user.senha}</td>
+            <td>${user.senha ? "••••••" : ""}</td>
             <td>
                 <button class="btnEdit" data-id="${user.id}">Editar</button>
                 <button class="btnDelete" data-id="${user.id}">Deletar</button>
@@ -33,37 +36,44 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => console.error('Erro ao buscar cadastros:', error));
     }
 
-    function showForm(user = {}) {
-        formContainer.style.display = "block";
+    // As funções do modal para semana
+    function showModal(user = {}) {
+        modal.style.display = "block";
+        modalTitle.textContent = user.id ? "Editar Usuário" : "Criar Usuário";
         document.getElementById("userId").value = user.id || "";
         document.getElementById("name").value = user.nome || "";
         document.getElementById("email").value = user.email || "";
-        document.getElementById("senha").value = user.senha || "";
+        document.getElementById("senha").value = ""; 
         editingUserId = user.id || null;
     }
 
-    function clearForm() {
-        document.getElementById("userId").value = "";
-        document.getElementById("name").value = "";
-        document.getElementById("email").value = "";
-        document.getElementById("senha").value = "";
-        editingUserId = null;
-        formContainer.style.display = "none";
+    function closeModalFunc() {
+        modal.style.display = "none";
+        clearForm();
     }
 
+    closeModal.onclick = closeModalFunc;
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            closeModalFunc();
+        }
+    };
+
     btnCreate.addEventListener("click", () => {
-        showForm();
+        showModal();
     });
 
-    btnCancel.addEventListener("click", () => {
-        clearForm();
-    });
+    function clearForm() {
+        formCadastro.reset();
+        editingUserId = null;
+    }
 
     formCadastro.addEventListener("submit", function (e) {
         e.preventDefault();
-        const nome = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-        const senha = document.getElementById("senha").value;
+        const nome = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const senha = document.getElementById("senha").value.trim();
 
         const user = { nome, email, senha };
 
@@ -73,7 +83,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(user)
             })
-            .then(() => fetchUsers())
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetchUsers();
+                    closeModalFunc();
+                } else {
+                    alert(`Erro: ${data.message}`);
+                }
+            })
             .catch(error => console.error('Erro ao atualizar cadastro:', error));
         } else {
             fetch('http://localhost:3000/cadastro', {
@@ -85,14 +103,13 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 if (data.success) {
                     fetchUsers();
+                    closeModalFunc();
                 } else {
-                    console.error('Erro ao criar cadastro:', data.message);
+                    alert(`Erro: ${data.message}`);
                 }
             })
             .catch(error => console.error('Erro ao criar cadastro:', error));
         }
-
-        clearForm();
     });
 
     tableBody.addEventListener("click", function (e) {
@@ -103,16 +120,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const row = target.closest("tr");
             const nome = row.cells[1].textContent;
             const email = row.cells[2].textContent;
-            const senha = row.cells[3].textContent;
-            showForm({ id: userId, nome, email, senha });
+            showModal({ id: userId, nome, email });
         }
 
         if (target.classList.contains("btnDelete")) {
-            fetch(`http://localhost:3000/cadastros/${userId}`, {
-                method: 'DELETE'
-            })
-            .then(() => fetchUsers())
-            .catch(error => console.error('Erro ao deletar cadastro:', error));
+            if (confirm("Tem certeza que deseja deletar este usuário?")) {
+                fetch(`http://localhost:3000/cadastros/${userId}`, {
+                    method: 'DELETE'
+                })
+                .then(() => fetchUsers())
+                .catch(error => console.error('Erro ao deletar cadastro:', error));
+            }
         }
     });
 
@@ -127,3 +145,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetchUsers();
 });
+

@@ -2,4 +2,5 @@ use esses comandos para rodar o projeto
 
 npm install express odbc cors body-parser
 
-npm install mysql2
+usado para criptografar as senha
+npm install bcrypt
