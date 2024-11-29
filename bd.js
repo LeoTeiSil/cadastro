@@ -95,6 +95,60 @@ app.get('/cadastros', async (req, res) => {
     }
 });
 
+app.get('/cadastros/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const connection = await connectDB();
+        const result = await connection.query('SELECT * FROM cadastros WHERE id = ?', [id]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ success: false, message: 'Usuário não encontrado' });
+        }
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('Erro ao obter usuário para edição:', error);
+        res.status(500).json({ success: false, message: 'Erro ao obter usuário para edição', error: error.message });
+    }
+});
+
+app.put('/cadastros/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome, email, senha } = req.body;
+
+    try {
+        const connection = await connectDB();
+
+        const hashedPassword = senha ? await bcrypt.hash(senha, 10) : undefined;
+
+        const updateQuery = 'UPDATE cadastros SET nome = ?, email = ?, senha = ? WHERE id = ?';
+        await connection.query(updateQuery, [nome, email, hashedPassword || null, id]);
+
+        res.json({ success: true, message: 'Cadastro atualizado com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao atualizar cadastro:', error);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar cadastro', error: error.message });
+    }
+});
+
+
+app.delete('/cadastros/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const connection = await connectDB();
+
+        await connection.query('DELETE FROM cadastros WHERE id = ?', [id]);
+
+        res.json({ success: true, message: 'Usuário deletado com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao deletar usuário:', error);
+        res.status(500).json({ success: false, message: 'Erro ao deletar usuário', error: error.message });
+    }
+});
+
+
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
